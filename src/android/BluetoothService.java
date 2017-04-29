@@ -11,8 +11,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
-import com.example.hello.MainActivity;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -53,12 +51,11 @@ public class BluetoothService {
     /**
      * Constructor. Prepares a new BTPrinter session.
      */
-    public BluetoothService() {
+    public BluetoothService(Handler handler) {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
-        //mHandler = null;
+        mHandler = handler;
     }
-    
 
     /**
      * Set the current state of the connection
@@ -69,7 +66,7 @@ public class BluetoothService {
         mState = state;
 
         // Give the new state to the Handler so the UI Activity can update
-        //mHandler.obtainMessage(MainActivity.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
+        mHandler.obtainMessage(TaffPrint.MESSAGE_STATE_CHANGE, state, -1).sendToTarget();
     }
 
     /**
@@ -141,11 +138,11 @@ public class BluetoothService {
         mConnectedThread.start();
 
         // Send the name of the connected device back to the UI Activity
-        /*Message msg = mHandler.obtainMessage(Main_Activity.MESSAGE_DEVICE_NAME);
+        Message msg = mHandler.obtainMessage(TaffPrint.MESSAGE_DEVICE_NAME);
         Bundle bundle = new Bundle();
-        bundle.putString(Main_Activity.DEVICE_NAME, device.getName());
+        bundle.putString(TaffPrint.DEVICE_NAME, device.getName());
         msg.setData(bundle);
-        mHandler.sendMessage(msg);*/
+        mHandler.sendMessage(msg);
 
         setState(STATE_CONNECTED);
     }
@@ -182,13 +179,12 @@ public class BluetoothService {
      */
     private void connectionFailed() {
         setState(STATE_LISTEN);
-        
+
         // Send a failure message back to the Activity
-        /*Message msg = mHandler.obtainMessage(Main_Activity.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(TaffPrint.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(Main_Activity.TOAST, "Unable to connect device");
         msg.setData(bundle);
-        mHandler.sendMessage(msg);*/
+        mHandler.sendMessage(msg);
     }
 
     /**
@@ -196,13 +192,12 @@ public class BluetoothService {
      */
     private void connectionLost() {
         //setState(STATE_LISTEN);
- 
+
         // Send a failure message back to the Activity
-        /*Message msg = mHandler.obtainMessage(Main_Activity.MESSAGE_TOAST);
+        Message msg = mHandler.obtainMessage(TaffPrint.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
-        bundle.putString(Main_Activity.TOAST, "Device connection was lost");
         msg.setData(bundle);
-        mHandler.sendMessage(msg);*/
+        mHandler.sendMessage(msg);
     }
 
     /**
@@ -387,14 +382,14 @@ public class BluetoothService {
                     if(bytes>0)
                     {
 	                    // Send the obtained bytes to the UI Activity
-	                    /*mHandler.obtainMessage(Main_Activity.MESSAGE_READ, bytes, -1, buffer)
-	                            .sendToTarget();*/
+	                    mHandler.obtainMessage(TaffPrint.MESSAGE_READ, bytes, -1, buffer)
+	                            .sendToTarget();
                     }
                     else
                     {
                         Log.e(TAG, "disconnected");
                         connectionLost();
-                        
+
                         //add by chongqing jinou
                         if(mState != STATE_NONE)
                         {
@@ -407,7 +402,7 @@ public class BluetoothService {
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
-                    
+
                     //add by chongqing jinou
                     if(mState != STATE_NONE)
                     {
@@ -434,8 +429,8 @@ public class BluetoothService {
                 }*/
                 Log.i("BTPWRITE", new String(buffer,"GBK"));
                 // Share the sent message back to the UI Activity
-                /*mHandler.obtainMessage(Main_Activity.MESSAGE_WRITE, -1, -1, buffer)
-                        .sendToTarget();*/
+                mHandler.obtainMessage(TaffPrint.MESSAGE_WRITE, -1, -1, buffer)
+                        .sendToTarget();
             } catch (IOException e) {
                 Log.e(TAG, "Exception during write", e);
             }

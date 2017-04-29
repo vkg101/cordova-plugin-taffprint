@@ -1,14 +1,19 @@
 package com.covle.cordova.plugin;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.apache.cordova.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -17,6 +22,17 @@ public class TaffPrint extends CordovaPlugin {
     private final String TAG = "coo";
     private BluetoothAdapter mBtAdapter;
     private JSONArray mPairedDevices;
+    private CallbackContext mBtConnectCallback;
+
+    // Message types sent from the BluetoothService Handler
+    public static final int MESSAGE_STATE_CHANGE = 1;
+    public static final int MESSAGE_READ = 2;
+    public static final int MESSAGE_WRITE = 3;
+    public static final int MESSAGE_DEVICE_NAME = 4;
+    public static final int MESSAGE_TOAST = 5;
+    public static final int MESSAGE_CONNECTION_LOST = 6;
+    public static final int MESSAGE_UNABLE_CONNECT = 7;
+    public static final String DEVICE_NAME = "device_name";
 
     // Name of the connected device
     private String mConnectedDeviceName = null;
@@ -34,6 +50,8 @@ public class TaffPrint extends CordovaPlugin {
             scan(callbackContext);
         } else if (action.equals("connect")){
             connect(data.getString(0), callbackContext);
+        } else if (action.equals("print")){
+            sendDataString(data.getString(0), callbackContext);
         } else if (action.equals("greet")) {
             String name = data.getString(0);
             String message = "Hello, " + name;
@@ -42,8 +60,6 @@ public class TaffPrint extends CordovaPlugin {
             return false;
         }
 
-
-        callbackContext.error("Unknown action");
         return true;
     }
 
@@ -87,27 +103,96 @@ public class TaffPrint extends CordovaPlugin {
             mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         }
         if (mService == null) {
-            mService = new BluetoothService();
+            mService = new BluetoothService(mHandler);
         }
     }
 
     public void connect(String address, CallbackContext callback){
         init();
+        mBtConnectCallback = callback;
+        PluginResult result;
 
         if (mBluetoothAdapter == null){
-            callback.error("No bluetooth devide");
-        }
-
-        // Get the BluetoothDevice object
-        if (BluetoothAdapter.checkBluetoothAddress(address)) {
-            BluetoothDevice device = mBluetoothAdapter
-                    .getRemoteDevice(address);
+            result = new PluginResult(PluginResult.Status.ERROR, "No bluetooth adapter");
+        } else if (BluetoothAdapter.checkBluetoothAddress(address)) {
+            // Get the BluetoothDevice object
+            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
             // Attempt to connect to the device
             mService.connect(device);
 
-            callback.success("Connecting to printer");
+            result = new PluginResult(PluginResult.Status.OK, "Connecting...");
+            //Magically keep the callback.
+            result.setKeepCallback(true);
         } else {
-            callback.error("Can't find printer");
+            result = new PluginResult(PluginResult.Status.ERROR, "Can't find Printer");
+        }
+
+        mBtConnectCallback.sendPluginResult(result);
+    }
+
+    @SuppressLint("HandlerLeak")
+    private final Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            PluginResult result;
+
+            switch (msg.what) {
+                case MESSAGE_STATE_CHANGE:
+
+                    switch (msg.arg1) {
+                        case BluetoothService.STATE_CONNECTED:
+                            result = new PluginResult(PluginResult.Status.OK, "Connected!");
+                            break;
+                        case BluetoothService.STATE_CONNECTING:
+                            result = new PluginResult(PluginResult.Status.OK, "Still connecting");
+                            break;
+                        case BluetoothService.STATE_LISTEN:
+                        case BluetoothService.STATE_NONE:
+                            result = new PluginResult(PluginResult.Status.OK, "Listening???");
+                            break;
+                        default:
+                            result = new PluginResult(PluginResult.Status.OK, "Don't know...");
+                    }
+                    break;
+                case MESSAGE_WRITE:
+                    result = new PluginResult(PluginResult.Status.OK, "Writing");
+                    break;
+                case MESSAGE_READ:
+                    result = new PluginResult(PluginResult.Status.OK, "Reading");
+                    break;
+                case MESSAGE_DEVICE_NAME:
+                    // save the connected device's name
+                    mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
+                    result = new PluginResult(PluginResult.Status.OK, "Getting device name");
+                    break;
+                case MESSAGE_CONNECTION_LOST:
+                    result = new PluginResult(PluginResult.Status.OK, "Connection lost");
+                    break;
+                case MESSAGE_UNABLE_CONNECT:
+                    result = new PluginResult(PluginResult.Status.OK, "Can't connect");
+                    break;
+                default:
+                    result = new PluginResult(PluginResult.Status.NO_RESULT, "Weird stuff is happening");
+            }
+
+            result.setKeepCallback(true);
+            mBtConnectCallback.sendPluginResult(result);
+        }
+    };
+
+    private void sendDataString(String data, CallbackContext callback) {
+
+        if (mService.getState() != BluetoothService.STATE_CONNECTED) {
+            callback.error("Not connected");
+            return;
+        }
+        if (data.length() > 0) {
+            try {
+                mService.write(data.getBytes("GBK"));
+            } catch (UnsupportedEncodingException e) {
+
+            }
+            //todo what about empty strings?
         }
     }
 
