@@ -28,6 +28,7 @@
         </config-file>
 
         <source-file src="src/android/TaffPrint.java" target-dir="src/com/covle/cordova/plugin/"/>
+        <source-file src="src/android/BluetoothService.java" target-dir="src/com/covle/cordova/plugin/"/>
     </platform>
 
 </plugin>
