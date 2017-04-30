@@ -6,12 +6,9 @@ import android.bluetooth.BluetoothDevice;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
-import android.view.ContextThemeWrapper;
-import android.widget.Toast;
 
 import com.covle.sdk.Command;
 import com.covle.sdk.PrintPicture;
@@ -23,12 +20,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.Set;
 
 public class TaffPrint extends CordovaPlugin {
 
-    private final String LOGO = "logo.bmp";
+    private final String LOGO = "logo";
     private final String TAG = "coo";
     private BluetoothAdapter mBtAdapter;
     private JSONArray mPairedDevices;
@@ -60,6 +56,8 @@ public class TaffPrint extends CordovaPlugin {
             scan(callbackContext);
         } else if (action.equals("connect")){
             connect(data.getString(0), callbackContext);
+        } else if (action.equals("printLogo")){
+            printLogo(callbackContext);
         } else if (action.equals("print")){
             sendDataString(data.getString(0), callbackContext);
         } else if (action.equals("greet")) {
@@ -145,47 +143,46 @@ public class TaffPrint extends CordovaPlugin {
         @Override
         public void handleMessage(Message msg) {
             PluginResult result;
+            boolean persist = true;
 
             switch (msg.what) {
                 case MESSAGE_STATE_CHANGE:
 
                     switch (msg.arg1) {
                         case BluetoothService.STATE_CONNECTED:
-                            result = new PluginResult(PluginResult.Status.OK, "Connected!");
+                            result = new PluginResult(PluginResult.Status.OK, "connected");
                             break;
                         case BluetoothService.STATE_CONNECTING:
-                            result = new PluginResult(PluginResult.Status.OK, "Still connecting");
+                            result = new PluginResult(PluginResult.Status.OK, "connecting");
                             break;
                         case BluetoothService.STATE_LISTEN:
                         case BluetoothService.STATE_NONE:
-                            result = new PluginResult(PluginResult.Status.OK, "Listening???");
+                            result = new PluginResult(PluginResult.Status.OK, "disconnected");
+                            persist = false;
                             break;
                         default:
-                            result = new PluginResult(PluginResult.Status.OK, "Don't know...");
+                            result = new PluginResult(PluginResult.Status.ERROR, "unknown");
+                            persist = false;
                     }
                     break;
-                case MESSAGE_WRITE:
-                    result = new PluginResult(PluginResult.Status.OK, "Writing");
-                    break;
-                case MESSAGE_READ:
-                    result = new PluginResult(PluginResult.Status.OK, "Reading");
-                    break;
-                case MESSAGE_DEVICE_NAME:
+                /*case MESSAGE_DEVICE_NAME:
                     // save the connected device's name
                     mConnectedDeviceName = msg.getData().getString(DEVICE_NAME);
                     result = new PluginResult(PluginResult.Status.OK, "Getting device name");
-                    break;
+                    break;*/
                 case MESSAGE_CONNECTION_LOST:
-                    result = new PluginResult(PluginResult.Status.OK, "Connection lost");
+                    result = new PluginResult(PluginResult.Status.OK, "disconnected");
+                    persist = false;
                     break;
                 case MESSAGE_UNABLE_CONNECT:
-                    result = new PluginResult(PluginResult.Status.OK, "Can't connect");
+                    result = new PluginResult(PluginResult.Status.OK, "cant-connect");
+                    persist = false;
                     break;
                 default:
-                    result = new PluginResult(PluginResult.Status.NO_RESULT, "Weird stuff is happening");
+                    result = new PluginResult(PluginResult.Status.NO_RESULT, "irrelevant");
             }
 
-            result.setKeepCallback(true);
+            result.setKeepCallback(persist);
             mBtConnectCallback.sendPluginResult(result);
         }
     };
@@ -208,7 +205,7 @@ public class TaffPrint extends CordovaPlugin {
         }
     }
 
-    private void SendDataByte(byte[] data) {
+    private void sendDataByte(byte[] data) {
 
         if (mService.getState() != BluetoothService.STATE_CONNECTED) {
             //todo return not connected?
@@ -217,24 +214,38 @@ public class TaffPrint extends CordovaPlugin {
         mService.write(data);
     }
 
-    private void Print_BMP(){
+    private void printLogo(CallbackContext callback){
 
-        Resources resources = cordova.getActivity().getResources();
-        int id = resources.getIdentifier(LOGO, "drawable", cordova.getActivity().getPackageName());
+        Bitmap mBitmap;
 
-        Bitmap mBitmap = BitmapFactory.decodeResource(resources, id);
+
+        try {
+            Resources resources = cordova.getActivity().getResources();
+            String packageName = cordova.getActivity().getPackageName();
+            int id = resources.getIdentifier(LOGO, "drawable", packageName);
+
+            mBitmap = BitmapFactory.decodeResource(resources, id);
+        } catch (Exception ex) {
+            callback.error("Error getting bitmap");
+            return;
+        }
+
 
         int nMode = 0;
         int nPaperWidth = 384;
         if(mBitmap != null)
         {
             byte[] data = PrintPicture.POS_PrintBMP(mBitmap, nPaperWidth, nMode);
-            SendDataByte(Command.ESC_Init);
-            SendDataByte(Command.LF);
-            SendDataByte(data);
-            SendDataByte(PrinterCommand.POS_Set_PrtAndFeedPaper(30));
-            SendDataByte(PrinterCommand.POS_Set_Cut(1));
-            SendDataByte(PrinterCommand.POS_Set_PrtInit());
+            sendDataByte(Command.ESC_Init);
+            sendDataByte(Command.LF);
+            sendDataByte(data);
+            sendDataByte(PrinterCommand.POS_Set_PrtAndFeedPaper(30));
+            sendDataByte(PrinterCommand.POS_Set_Cut(1));
+            sendDataByte(PrinterCommand.POS_Set_PrtInit());
+
+            callback.success("Logo printed.");
+        } else {
+            callback.error("Bitmap is null");
         }
     }
 

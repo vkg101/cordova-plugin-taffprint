@@ -4,14 +4,12 @@ module.exports = {
     },
     scan: function (successCallback, errorCallback) {
         cordova.exec(successCallback, errorCallback, "TaffPrint", "scan", []);
-        //Should get a collection of printer names.
     },
     connect: function(name, success, error) {
-        console.log("Not implemented yet...");
+        //Note: These callbacks will fire whenever a status change occurs.
         cordova.exec(success, error, "TaffPrint", "connect", [name]);
     },
     print: function(message, success, error) {
-        console.log("Not implemented yet...");
         cordova.exec(success, error, "TaffPrint", "print", [message]);
     },
     printLine: function(message, success, error) {
@@ -19,7 +17,6 @@ module.exports = {
         cordova.exec(success, error, "TaffPrint", "printLine", [message]);
     },
     printLogo: function(success, error) {
-        console.log("Not implemented yet...");
         cordova.exec(success, error, "TaffPrint", "printLogo", []);
     }
 
