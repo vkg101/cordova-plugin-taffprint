@@ -3,10 +3,19 @@ package com.covle.cordova.plugin;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.widget.Toast;
+
+import com.covle.sdk.Command;
+import com.covle.sdk.PrintPicture;
+import com.covle.sdk.PrinterCommand;
 
 import org.apache.cordova.*;
 import org.json.JSONArray;
@@ -19,6 +28,7 @@ import java.util.Set;
 
 public class TaffPrint extends CordovaPlugin {
 
+    private final String LOGO = "logo.bmp";
     private final String TAG = "coo";
     private BluetoothAdapter mBtAdapter;
     private JSONArray mPairedDevices;
@@ -189,10 +199,42 @@ public class TaffPrint extends CordovaPlugin {
         if (data.length() > 0) {
             try {
                 mService.write(data.getBytes("GBK"));
+                callback.success("Printed.");
             } catch (UnsupportedEncodingException e) {
 
             }
-            //todo what about empty strings?
+        } else {
+            callback.error("Nothing to write...");
+        }
+    }
+
+    private void SendDataByte(byte[] data) {
+
+        if (mService.getState() != BluetoothService.STATE_CONNECTED) {
+            //todo return not connected?
+            return;
+        }
+        mService.write(data);
+    }
+
+    private void Print_BMP(){
+
+        Resources resources = cordova.getActivity().getResources();
+        int id = resources.getIdentifier(LOGO, "drawable", cordova.getActivity().getPackageName());
+
+        Bitmap mBitmap = BitmapFactory.decodeResource(resources, id);
+
+        int nMode = 0;
+        int nPaperWidth = 384;
+        if(mBitmap != null)
+        {
+            byte[] data = PrintPicture.POS_PrintBMP(mBitmap, nPaperWidth, nMode);
+            SendDataByte(Command.ESC_Init);
+            SendDataByte(Command.LF);
+            SendDataByte(data);
+            SendDataByte(PrinterCommand.POS_Set_PrtAndFeedPaper(30));
+            SendDataByte(PrinterCommand.POS_Set_Cut(1));
+            SendDataByte(PrinterCommand.POS_Set_PrtInit());
         }
     }
 

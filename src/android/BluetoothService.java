@@ -421,7 +421,7 @@ public class BluetoothService {
         public void write(byte[] buffer) {
             try {
                 mmOutStream.write(buffer);
-                mmOutStream.flush();//清空缓存
+                mmOutStream.flush();
                /* if (buffer.length > 3000) //
                 {
                   byte[] readata = new byte[1];

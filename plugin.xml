@@ -29,6 +29,13 @@
 
         <source-file src="src/android/TaffPrint.java" target-dir="src/com/covle/cordova/plugin/"/>
         <source-file src="src/android/BluetoothService.java" target-dir="src/com/covle/cordova/plugin/"/>
+
+        <source-file src="src/android/sdk/Command.java" target-dir="src/com/covle/sdk/Command.java"/>
+        <source-file src="src/android/sdk/PrinterCommand.java" target-dir="src/com/covle/sdk/PrinterCommand.java"/>
+        <source-file src="src/android/sdk/PrintPicture.java" target-dir="src/com/covle/sdk/PrintPicture.java"/>
+
+
+        <resource-file src="src/android/res/drawable/logo.bmp" target="res/drawable/logo.bmp" />
     </platform>
 
 </plugin>
