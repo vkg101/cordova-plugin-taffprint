@@ -56,19 +56,35 @@ public class TaffPrint extends CordovaPlugin {
             scan(callbackContext);
         } else if (action.equals("connect")){
             connect(data.getString(0), callbackContext);
+        } else if (action.equals("status")){
+            status(callbackContext);
+        } else if (action.equals("disconnect")){
+            mService.stop();
+            callbackContext.success("disconnected");
         } else if (action.equals("printLogo")){
             printLogo(callbackContext);
         } else if (action.equals("print")){
             sendDataString(data.getString(0), callbackContext);
-        } else if (action.equals("greet")) {
-            String name = data.getString(0);
-            String message = "Hello, " + name;
-            callbackContext.success(message);
         } else {
             return false;
         }
 
         return true;
+    }
+
+    public void status(CallbackContext callback){
+        int state = mService.getState();
+        switch (state) {
+            case BluetoothService.STATE_LISTEN:
+            case BluetoothService.STATE_NONE:
+                callback.success("disconnected");
+            case BluetoothService.STATE_CONNECTED:
+                callback.success("connected");
+            case BluetoothService.STATE_CONNECTING:
+                callback.success("connecting");
+        }
+
+        callback.error("Unknown state");
     }
 
     public void scan(CallbackContext callbackContext){

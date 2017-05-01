@@ -1,7 +1,4 @@
 module.exports = {
-    greet: function (name, successCallback, errorCallback) {
-        cordova.exec(successCallback, errorCallback, "TaffPrint", "greet", [name]);
-    },
     scan: function (successCallback, errorCallback) {
         cordova.exec(successCallback, errorCallback, "TaffPrint", "scan", []);
     },
@@ -12,9 +9,11 @@ module.exports = {
     print: function(message, success, error) {
         cordova.exec(success, error, "TaffPrint", "print", [message]);
     },
-    printLine: function(message, success, error) {
-        console.log("Not implemented yet...");
-        cordova.exec(success, error, "TaffPrint", "printLine", [message]);
+    status: function(success, error) {
+        cordova.exec(success, error, "TaffPrint", "status", []);
+    },
+    disconnect: function(success, error) {
+        cordova.exec(success, error, "TaffPrint", "disconnect", []);
     },
     printLogo: function(success, error) {
         cordova.exec(success, error, "TaffPrint", "printLogo", []);
