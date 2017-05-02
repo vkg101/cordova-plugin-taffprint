@@ -51,6 +51,7 @@ public class TaffPrint extends CordovaPlugin {
 
     @Override
     public boolean execute(String action, JSONArray data, CallbackContext callbackContext) throws JSONException {
+        init();
 
         if (action.equals("scan")){
             scan(callbackContext);
@@ -132,7 +133,7 @@ public class TaffPrint extends CordovaPlugin {
     }
 
     public void connect(String address, CallbackContext callback){
-        init();
+        //init();
         mBtConnectCallback = callback;
         PluginResult result;
 
