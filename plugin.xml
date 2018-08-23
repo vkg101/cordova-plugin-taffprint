@@ -37,7 +37,7 @@
         <resource-file src="src/android/res/drawable/logo.bmp" target="res/drawable/logo.bmp" />
 
         <lib-file src="src/android/libs/btsdk.jar"/>
-        <lib-file src="src/android/libs/zixng.jar"/>
+        <!--lib-file src="src/android/libs/zixng.jar"/-->
     </platform>
 
 </plugin>
