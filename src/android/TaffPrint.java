@@ -71,7 +71,7 @@ public class TaffPrint extends CordovaPlugin {
         } else if (action.equals("print")){
             sendDataString(data.getString(0), callbackContext);
         } else if (action.equals("printPOSCommand")){
-			printPOSCommand(ToByteArray(data.getString(0)), callbackContext);
+			printPOSCommand(hexStringToBytes(data.getString(0)), data.getString(1), callbackContext);
 		} else {
             return false;
         }
@@ -228,13 +228,14 @@ public class TaffPrint extends CordovaPlugin {
         }
     }
 
-	private void printPOSCommand( byte[] buffer, CallbackContext callback){
+	private void printPOSCommand( byte[] command, String message, CallbackContext callback){
 		if (mService.getState() != BluetoothService.STATE_CONNECTED) {
             callback.error("Not connected");
             return;
         }
 		try {
 			sendDataByte(buffer);
+			sendDataByte(message.getBytes(Charset.forName("UTF-8")));
 			callback.success("Executed.");
 		} catch (Exception e) {
 
@@ -295,7 +296,8 @@ public class TaffPrint extends CordovaPlugin {
             callback.error("Bitmap "+path+" is null");
         }
     }
-
+	
+	/*
 	public static byte[] ToByteArray(String HexString)
     {
         int NumberChars = HexString.length();
@@ -306,6 +308,7 @@ public class TaffPrint extends CordovaPlugin {
         }
         return bytes;
     }
+	*/
 	
 	public static byte[] hexStringToBytes(String hexString) {
         hexString = hexString.toLowerCase();
