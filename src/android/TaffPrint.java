@@ -22,7 +22,8 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
-import java.nio.charset;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 
 public class TaffPrint extends CordovaPlugin {
