@@ -296,11 +296,11 @@ public class TaffPrint extends CordovaPlugin {
 
 	public static byte[] ToByteArray(String HexString)
     {
-        int NumberChars = HexString.Length;
+        int NumberChars = HexString.length;
         byte[] bytes = new byte[NumberChars / 2];
         for (int i = 0; i < NumberChars; i += 2)
         {
-            bytes[i / 2] = Convert.ToByte(HexString.Substring(i, 2), 16);
+            bytes[i / 2] = HexString.substring(i, 2).getBytes(Charset.forName("UTF-8"));
         }
         return bytes;
     }
