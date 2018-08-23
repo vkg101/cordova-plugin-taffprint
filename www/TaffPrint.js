@@ -19,7 +19,7 @@ module.exports = {
         cordova.exec(success, error, "TaffPrint", "printLogo", [path]);
     },
 	printPOSCommand: function(command, message, success, error) {
-        cordova.exec(success, error, "TaffPrint", "printPOSCommand", [message]);
+        cordova.exec(success, error, "TaffPrint", "printPOSCommand", [command, message]);
     },
 
 };
