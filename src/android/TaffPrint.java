@@ -22,6 +22,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
+import java.nio.charset;
 
 
 public class TaffPrint extends CordovaPlugin {
@@ -296,7 +297,7 @@ public class TaffPrint extends CordovaPlugin {
 
 	public static byte[] ToByteArray(String HexString)
     {
-        int NumberChars = HexString.length;
+        int NumberChars = HexString.length();
         byte[] bytes = new byte[NumberChars / 2];
         for (int i = 0; i < NumberChars; i += 2)
         {
