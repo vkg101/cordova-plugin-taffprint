@@ -15,8 +15,8 @@ module.exports = {
     disconnect: function(success, error) {
         cordova.exec(success, error, "TaffPrint", "disconnect", []);
     },
-    printLogo: function(success, error) {
-        cordova.exec(success, error, "TaffPrint", "printLogo", []);
+    printLogo: function(path, success, error) {
+        cordova.exec(success, error, "TaffPrint", "printLogo", [path]);
     }
 
 };

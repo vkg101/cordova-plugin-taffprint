@@ -63,7 +63,7 @@ public class TaffPrint extends CordovaPlugin {
             mService.stop();
             callbackContext.success("disconnected");
         } else if (action.equals("printLogo")){
-            printLogo(callbackContext);
+            printLogo(data.getString(0), callbackContext);
         } else if (action.equals("print")){
             sendDataString(data.getString(0), callbackContext);
         } else {
@@ -231,17 +231,18 @@ public class TaffPrint extends CordovaPlugin {
         mService.write(data);
     }
 
-    private void printLogo(CallbackContext callback){
+    private void printLogo(String path, CallbackContext callback){
 
         Bitmap mBitmap;
 
 
         try {
-            Resources resources = cordova.getActivity().getResources();
-            String packageName = cordova.getActivity().getPackageName();
-            int id = resources.getIdentifier(LOGO, "drawable", packageName);
+            //Resources resources = cordova.getActivity().getResources();
+            //String packageName = cordova.getActivity().getPackageName();
+            //int id = resources.getIdentifier(LOGO, "drawable", packageName);
 
-            mBitmap = BitmapFactory.decodeResource(resources, id);
+            //mBitmap = BitmapFactory.decodeResource(resources, id);
+            mBitmap = BitmapFactory.decodeFile(path);
         } catch (Exception ex) {
             callback.error("Error getting bitmap");
             return;
@@ -260,7 +261,7 @@ public class TaffPrint extends CordovaPlugin {
             sendDataByte(PrinterCommand.POS_Set_Cut(1));
             sendDataByte(PrinterCommand.POS_Set_PrtInit());
 
-            callback.success("Logo printed.");
+            callback.success("Image printed.");
         } else {
             callback.error("Bitmap is null");
         }
