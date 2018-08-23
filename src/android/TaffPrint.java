@@ -263,7 +263,7 @@ public class TaffPrint extends CordovaPlugin {
 
             callback.success("Image printed.");
         } else {
-            callback.error("Bitmap is null");
+            callback.error("Bitmap "+path+" is null");
         }
     }
 
