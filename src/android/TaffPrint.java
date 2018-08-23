@@ -69,7 +69,7 @@ public class TaffPrint extends CordovaPlugin {
         } else if (action.equals("print")){
             sendDataString(data.getString(0), callbackContext);
         } else if (action.equals("printPOSCommand")){
-			printPOSCommand(hexStringToBytes(data.getString(0)), callbackContext);
+			printPOSCommand(ToByteArray(data.getString(0)), callbackContext);
 		} else {
             return false;
         }
@@ -294,6 +294,17 @@ public class TaffPrint extends CordovaPlugin {
         }
     }
 
+	public static byte[] ToByteArray(String HexString)
+    {
+        int NumberChars = HexString.Length;
+        byte[] bytes = new byte[NumberChars / 2];
+        for (int i = 0; i < NumberChars; i += 2)
+        {
+            bytes[i / 2] = Convert.ToByte(HexString.Substring(i, 2), 16);
+        }
+        return bytes;
+    }
+	
 	public static byte[] hexStringToBytes(String hexString) {
         hexString = hexString.toLowerCase();
         String[] hexStrings = hexString.split(" ");
