@@ -68,7 +68,9 @@ public class TaffPrint extends CordovaPlugin {
             printLogo(data.getString(0), callbackContext);
         } else if (action.equals("print")){
             sendDataString(data.getString(0), callbackContext);
-        } else {
+        } else if (action.equals("printPOSCommand")){
+			printPOSCommand(hexStringToBytes(data.getString(0)), callbackContext);
+		} else {
             return false;
         }
 
@@ -224,6 +226,20 @@ public class TaffPrint extends CordovaPlugin {
         }
     }
 
+	private void printPOSCommand( byte[] buffer, CallbackContext callback){
+		if (mService.getState() != BluetoothService.STATE_CONNECTED) {
+            callback.error("Not connected");
+            return;
+        }
+		try {
+			sendDataByte(buffer);
+			callback.success("Executed.");
+		} catch (UnsupportedEncodingException e) {
+
+		}
+		
+	}
+	
     private void sendDataByte(byte[] data) {
 
         if (mService.getState() != BluetoothService.STATE_CONNECTED) {
@@ -260,7 +276,6 @@ public class TaffPrint extends CordovaPlugin {
             return;
         }
 
-
         int nMode = 0;
         int nPaperWidth = 384;
         if(mBitmap != null)
@@ -279,4 +294,19 @@ public class TaffPrint extends CordovaPlugin {
         }
     }
 
+	public static byte[] hexStringToBytes(String hexString) {
+        hexString = hexString.toLowerCase();
+        String[] hexStrings = hexString.split(" ");
+        byte[] bytes = new byte[hexStrings.length];
+        for (int i = 0; i < hexStrings.length; i++) {
+            char[] hexChars = hexStrings[i].toCharArray();
+            bytes[i] = (byte) (charToByte(hexChars[0]) << 4 | charToByte(hexChars[1]));
+        }
+        return bytes;
+    }
+	
+	private static byte charToByte(char c) {
+		return (byte) "0123456789abcdef".indexOf(c);
+	}
+	
 }

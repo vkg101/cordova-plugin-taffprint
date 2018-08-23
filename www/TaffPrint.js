@@ -6,7 +6,7 @@ module.exports = {
         //Note: These callbacks will fire whenever a status change occurs.
         cordova.exec(success, error, "TaffPrint", "connect", [name]);
     },
-    print: function(message, success, error) {
+    printText: function(message, success, error) {
         cordova.exec(success, error, "TaffPrint", "print", [message]);
     },
     status: function(success, error) {
@@ -17,6 +17,9 @@ module.exports = {
     },
     printImage: function(path, success, error) {
         cordova.exec(success, error, "TaffPrint", "printLogo", [path]);
-    }
+    },
+	printPOSCommand: function(message, success, error) {
+        cordova.exec(success, error, "TaffPrint", "printPOSCommand", [message]);
+    },
 
 };
