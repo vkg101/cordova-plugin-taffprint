@@ -237,7 +237,7 @@ public class TaffPrint extends CordovaPlugin {
 			sendDataByte(command);
 			sendDataByte(message.getBytes(Charset.forName("UTF-8")));
 			
-			sendDataByte(PrinterCommand("teststr", 65, 100, 100, 1, 1));
+			sendDataByte(PrinterCommand.getCodeBarCommand("teststr", 65, 100, 100, 1, 1));
 			
 			sendDataByte(PrinterCommand.POS_Set_Cut(1));
             sendDataByte(PrinterCommand.POS_Set_PrtInit());
