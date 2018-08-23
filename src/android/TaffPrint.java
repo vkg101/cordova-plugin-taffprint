@@ -234,7 +234,7 @@ public class TaffPrint extends CordovaPlugin {
 		try {
 			sendDataByte(buffer);
 			callback.success("Executed.");
-		} catch (UnsupportedEncodingException e) {
+		} catch (Exception e) {
 
 		}
 		
