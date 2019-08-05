@@ -1,0 +1,31 @@
+{
+  "name": "cordova-plugin-flashlight",
+  "version": "3.2.0",
+  "description": "This plugin allows taffbt.",
+  "cordova": {
+    "id": "cordova-plugin-flashlight",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vkg101/cordova-plugin-taffprint.git"
+  },
+  "keywords": [
+    "Torch",
+    "cordova-wp8"
+  ],
+  "engines": [
+    {
+      "name": "cordova",
+      "version": ">=3.0.0"
+    }
+  ],
+  "author": "Jn Doe  <jjs@gmail.com> (https://github.com/)",
+  "license": "MIT",
+  "bugs": {
+    "url": ""
+  },
+  "homepage": ""
+}
